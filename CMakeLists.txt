@@ -1,42 +1,41 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(BabaIsYou
-    LANGUAGES CXX
-)
+project(BabaIsYou LANGUAGES CXX)
 
-# ---- Global settings ----
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ---- Sources ----
-file(GLOB_RECURSE SOURCES
-    src/*.cpp
-    src/*.h
-    src/*.hpp
+include(FetchContent)
+
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG 6.0
+    GIT_SHALLOW TRUE
+)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(raylib)
+
+set (SOURCES
+    src/main.cpp
+    src/game.cpp
+    src/level.cpp
+    src/tile.cpp
+
+    src/bimap.h
+    src/game.h
+    src/level.h
+    src/tile.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-set(RAYLIB_ROOT "C:/raylib-5.5")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SOURCES})
 
-add_library(raylib STATIC IMPORTED)
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-set_target_properties(raylib PROPERTIES
-    IMPORTED_LOCATION "${RAYLIB_ROOT}/lib/raylib.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${RAYLIB_ROOT}/include"
-)
+target_include_directories(${PROJECT_NAME} PRIVATE "src")
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    src
-    include
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    raylib
-    winmm
-    gdi32
-    user32
-    opengl32
-    kernel32
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
